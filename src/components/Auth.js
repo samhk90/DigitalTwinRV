@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { useNavigate } from 'react-router-dom';
+import { Eye, EyeOff } from 'lucide-react'; // Import icons from lucide-react
 
 // Initialize Supabase client
 const supabase = createClient('https://wxundvfcpvhhggpifltc.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind4dW5kdmZjcHZoaGdncGlmbHRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjY5MDU3MDgsImV4cCI6MjA0MjQ4MTcwOH0.uFy5Vkgbh0vdPAwux4VlFdDs8VNqEiY5fUgWns_UOCM');
 
 const Auth = ({ setIsAuthenticated }) => {
   const [loginData, setLoginData] = useState({ username: '', password: '' });
+  const [passwordVisible, setPasswordVisible] = useState(false);
   const navigate = useNavigate();
 
   const handleLoginSubmit = async (e) => {
@@ -18,11 +20,14 @@ const Auth = ({ setIsAuthenticated }) => {
     if (error) {
       alert('Login error: ' + error.message);
     } else {
-      window.location.reload();
       setIsAuthenticated(true);
-      navigate('/')
-       // Redirect to the main dashboard
+      window.location.reload();
+      navigate('/'); // Redirect to the main dashboard
     }
+  };
+
+  const togglePasswordVisibility = () => {
+    setPasswordVisible(!passwordVisible);
   };
 
   return (
@@ -51,15 +56,21 @@ const Auth = ({ setIsAuthenticated }) => {
                 required
               />
             </div>
-            <div>
+            <div className="relative">
               <label className="block text-gray-400 mb-2">Password</label>
               <input
-                type="password"
+                type={passwordVisible ? 'text' : 'password'}
                 className="w-full p-3 bg-gray-700 text-white border border-gray-600 rounded-lg focus:outline-none focus:ring focus:border-blue-300"
                 value={loginData.password}
                 onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
                 required
               />
+              <span style={{ top: '3.5rem' }}
+                className="absolute right-3  transform -translate-y-1/2 cursor-pointer "
+                onClick={togglePasswordVisibility}
+              >
+                {passwordVisible ? <EyeOff className="text-gray-400" /> : <Eye className="text-gray-400" />}
+              </span>
             </div>
             <button
               type="submit"
