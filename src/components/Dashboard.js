@@ -1,213 +1,314 @@
-import { useMemo } from 'react';
-import { Line } from 'react-chartjs-2';
+import React, { useEffect, useState } from 'react';
+import { createClient } from '@supabase/supabase-js';
+import { GoogleMap, Marker, LoadScript } from '@react-google-maps/api';
 import {
   Chart as ChartJS,
-  RadarController,
-  RadialLinearScale,
-  Filler,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
   Title,
   Tooltip,
   Legend,
-  PointElement,
-  LineElement,
-  CategoryScale,
-  LinearScale,
-  BarElement,
 } from 'chart.js';
+import { Line } from 'react-chartjs-2';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 
-// Register necessary Chart.js components
-ChartJS.register(
-  RadarController,
-  RadialLinearScale,
-  Filler,
-  Title,
-  Tooltip,
-  Legend,
-  PointElement,
-  LineElement,
-  CategoryScale,
-  LinearScale,
-  BarElement
-);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
-// Sample Data
-const enginePerformanceData = [
-  { category: 'Speed', value: 80 },
-  { category: 'Fuel Efficiency', value: 70 },
-  { category: 'Maintenance', value: 60 },
-  { category: 'Temperature', value: 75 },
-  { category: 'Noise Level', value: 65 },
-];
-
-const fuelUsageData = [
-  { name: 'Jan', value: 150 },
-  { name: 'Feb', value: 200 },
-  { name: 'Mar', value: 180 },
-  { name: 'Apr', value: 210 },
-  { name: 'May', value: 190 },
-  { name: 'Jun', value: 220 },
-];
-
-const overallPerformanceData = [
-  { name: 'Jan', value: 75 },
-  { name: 'Feb', value: 80 },
-  { name: 'Mar', value: 70 },
-  { name: 'Apr', value: 85 },
-  { name: 'May', value: 90 },
-  { name: 'Jun', value: 95 },
-];
-
-const engineHealth = 75;
+const supabase = createClient('https://wxundvfcpvhhggpifltc.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind4dW5kdmZjcHZoaGdncGlmbHRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjY5MDU3MDgsImV4cCI6MjA0MjQ4MTcwOH0.uFy5Vkgbh0vdPAwux4VlFdDs8VNqEiY5fUgWns_UOCM');
 
 const Dashboard = () => {
-  const lineData = useMemo(() => ({
-    labels: fuelUsageData.map((data) => data.name),
+  const [data, setData] = useState([]);
+  const [rvStatus, setRvStatus] = useState(null);
+  const [engineHealth, setEngineHealth] = useState(100);
+  const [usageData, setUsageData] = useState({
+    electricity: [],
+    water: [],
+  });
+
+const mapContainerStyle = {
+  height: '240px',
+  width: '1130px'
+};
+  const [rvLocation, setRvLocation] = useState(null);
+  const center = {
+    lat: 0, // Default latitude
+    lng: 0  // Default longitude
+  };
+  useEffect(() => {
+    const fetchData = async () => {
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user || !user.id) return;
+  
+      const { data: rvDetails, error: rvDetailsError } = await supabase
+        .from('rvdetails')
+        .select('*')
+        .eq('userid', user.id);
+  
+      if (rvDetailsError || !rvDetails || rvDetails.length === 0) return;
+  
+      const rvid = rvDetails[0].id;
+      const rvmodel= rvDetails[0].rvmodel;
+      const { data: rvData, error } = await supabase
+        .from('rvdata')
+        .select('*')
+        .eq('rvid', rvid)
+        .order('created_at', { ascending: false }); // Sort by createdat in descending order
+      console.log(rvData)
+      if (error) return;
+      setData(rvData);// Use the latest entry (first in the sorted list)
+      setRvStatus({ ...rvData[0], rvmodel });
+      // Prepare usage data for graphs
+      const electricityUsage = rvData.map(item => item.power_consumption);
+      const waterUsage = rvData.map(item => item.freshwater_tank_level);
+      setUsageData({
+        electricity: electricityUsage,
+        water: waterUsage,
+      });
+      if (rvData) {
+        setRvLocation({
+          lat: rvData[0].latitude,
+          lng: rvData[0].longitude
+        });
+      } else  {
+        console.log('error in rv location');
+      }
+    };
+
+
+
+  
+    fetchData();
+  }, []);
+  
+
+  // Graph data
+  const graphData = {
+    labels: data.map((item, index) => `Data ${index + 1}`),
     datasets: [
       {
-        label: 'Fuel Usage (kWh)',
-        data: fuelUsageData.map((data) => data.value),
-        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-        borderColor: 'rgba(54, 162, 235, 1)',
-        borderWidth: 2,
+        label: 'Electricity Usage (kWh)',
+        data: usageData.electricity,
+        borderColor: 'rgba(75, 192, 192, 1)',
+        backgroundColor: 'rgba(75, 192, 192, 0.2)',
         fill: true,
       },
       {
-        label: 'Overall Performance (%)',
-        data: overallPerformanceData.map((data) => data.value),
-        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-        borderColor: 'rgba(255, 99, 132, 1)',
-        borderWidth: 2,
+        label: 'Water Usage (liters)',
+        data: usageData.water,
+        borderColor: 'rgba(153, 102, 255, 1)',
+        backgroundColor: 'rgba(153, 102, 255, 0.2)',
         fill: true,
       },
     ],
-  }), []);
+  };
 
   return (
-    <div className="p-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 bg-gray-650 min-h-screen">
-      
-      {/* Engine Health Card */}
-      <div className="bg-gradient-to-r from-gray-700 via-gray-800 to-gray-900 p-6 rounded-lg shadow-lg transition-transform transform hover:scale-105">
-        <h2 className="text-2xl font-semibold mb-4 text-white">Engine Health</h2>
-        <div className="w-1/2 mx-auto mb-4">
-          <CircularProgressbar
-            value={engineHealth}
-            text={`${engineHealth}%`}
-            styles={buildStyles({
-              textColor: '#fff',
-              pathColor: '#4CAF50',
-              trailColor: '#333',
-            })}
-          />
+    <div className="p-8 bg-gray-800 h-full">
+      <header className="bg-gray-900 rounded-lg shadow-md p-4 flex justify-between items-center mb-8">
+      <h1 className="text-3xl font-bold text-white">
+          {rvStatus ? rvStatus.rvmodel : 'Loading RV Model...'}
+        </h1>
+        <div className="flex items-center">
+          {rvStatus ? (
+            <>
+              <div className={`w-3 h-3 ${rvStatus.rvmodel ? 'bg-green-500' : 'bg-red-500'} rounded-full mr-2`}></div>
+              <span className={`${rvStatus.rvmodel ? 'text-green-400' : 'text-red-400'} font-semibold`}>
+                {rvStatus.online ? 'Online' : 'Offline'}
+              </span>
+            </>
+          ) : (
+            <span className="text-gray-400">Loading...</span>
+          )}
         </div>
-        <p className="text-gray-300 text-center">Current Health: {engineHealth}%</p>
-        <ul className="mt-4 text-gray-300">
-          <li>Oil Level: <span className="font-semibold">Good</span></li>
-          <li>Coolant Level: <span className="font-semibold">Normal</span></li>
-          <li>Battery Status: <span className="font-semibold">Charged</span></li>
-        </ul>
-      </div>
+      </header>
 
-      {/* Combined Usage and Performance Line Chart */}
-      <div className="col-span-1 lg:col-span-3 bg-gradient-to-r from-gray-700 via-gray-800 to-gray-900 p-6 rounded-lg shadow-lg transition-transform transform hover:scale-105">
-        <h2 className="text-2xl font-semibold mb-4 text-white">Usage & Performance Overview</h2>
-        <div className="w-full h-96">
-          <Line 
-            data={lineData} 
-            options={{
-              responsive: true,
-              plugins: {
-                legend: {
-                  display: true,
-                  position: 'top',
-                  labels: {
-                    color: '#fff',
-                  },
-                },
-                tooltip: {
-                  callbacks: {
-                    label: (context) => {
-                      const label = context.dataset.label || '';
-                      return `${label}: ${context.raw} ${label.includes('Fuel') ? 'kWh' : '%'}`;
-                    },
-                  },
-                },
-              },
-              scales: {
-                x: {
-                  ticks: {
-                    color: '#fff',
-                  },
-                  grid: {
-                    color: '#444',
-                  },
-                },
-                y: {
-                  ticks: {
-                    color: '#fff',
-                  },
-                  beginAtZero: true,
-                  grid: {
-                    color: '#444',
-                  },
-                },
-              },
-            }} 
-          />
-        </div>
-        <p className="text-gray-300 mt-4">Fuel usage and overall performance over the last 6 months</p>
-      </div>
+      <div className="p-8 grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-8 bg-gray-650 min-h-screen">
+      <div className="col-span-3  flex justify-between space-x-8">
+  {/* Engine Health Card */}
+  <div className="bg-transparent p-4 rounded-lg shadow-lg transition-transform transform hover:scale-105 col-span-3">
+  <h2 className="text-2xl font-semibold mb-4 text-white">Engine Health</h2>
+  
+  {/* Adjusting the progress bar size */}
+  <div className="w-3/4 mx-auto mb-4"> {/* Increased size from w-1/2 to w-3/4 */}
+    <CircularProgressbar
+      value={engineHealth}
+      text={`${engineHealth}%`}
+      styles={buildStyles({
+        textSize: '16px', // Adjusted the text size inside the progress bar
+        textColor: '#fff',
+        pathColor: '#4CAF50',
+        trailColor: '#333',
+      })}
+    />
+  </div>
 
-      {/* Appliance Status Card */}
-      <div className="bg-gradient-to-r from-gray-700 via-gray-800 to-gray-900 p-6 rounded-lg shadow-lg transition-transform transform hover:scale-105">
-        <h2 className="text-2xl font-semibold mb-4 text-white">Appliance Status</h2>
-        <ul className="space-y-2 text-gray-300">
-          <li className="flex justify-between">
-            <span>Refrigerator:</span> 
-            <span className="text-green-400 font-semibold">Running</span>
-          </li>
-          <li className="flex justify-between">
-            <span>Stove:</span> 
-            <span className="text-red-400 font-semibold">Off</span>
-          </li>
-          <li className="flex justify-between">
-            <span>Air Conditioning:</span> 
-            <span className="text-green-400 font-semibold">Running</span>
-          </li>
-          <li className="flex justify-between">
-            <span>Heater:</span> 
-            <span className="text-red-400 font-semibold">Off</span>
-          </li>
-          <li className="flex justify-between">
-            <span>Lights:</span> 
-            <span className="text-green-400 font-semibold">On</span>
-          </li>
-        </ul>
-      </div>
+  {/* Text adjusted below the progress bar */}
+  <div className="mt-2 mx-auto text-center"> {/* Centered the text block */}
+    <p className="text-gray-300">Current Health: {engineHealth}%</p>
+    <p className="text-gray-300">Engine Temperature: {rvStatus?.engine_temperature}°F</p>
+    <p className="text-gray-300">Engine Oil Pressure: {rvStatus?.oil_pressure}</p>
+    <p className="text-gray-300">Transmission Status: {rvStatus?.transmission_status}</p>
+    <p className="text-gray-300">RPM: {rvStatus?.rpm}</p>
+  </div>
+</div>
 
-      {/* Fuel Status Card */}
-      <div className="bg-gradient-to-r from-gray-700 via-gray-800 to-gray-900 p-6 rounded-lg shadow-lg transition-transform transform hover:scale-105">
-        <h2 className="text-2xl font-semibold mb-4 text-white">Fuel Status</h2>
-        <div className="w-full h-6 bg-gray-800 rounded-lg relative">
-          <div className="absolute top-0 left-0 h-full bg-green-500 rounded-lg" style={{ width: '60%' }}>
-            <div className="h-full text-white flex items-center justify-center">
-              60%
+
+  {/* Side Card */}
+  <div className="bg-transparent h-fit w-full p-4 rounded-lg shadow-lg transition-transform transform hover:scale-105 col-span-3">
+    <h2 className="text-2xl font-semibold mb-4 text-white">Transmission Status</h2>
+    <div class="sketchfab-embed-wrapper"> <iframe title="Nw-vehicle-FINAL" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share width="832" height="350" src="https://sketchfab.com/models/0c07dcbaef97433a8ad73bbe15bcd3b0/embed"> </iframe> </div>
+  </div>
+</div>
+
+          {/* GPS and Navigation Card */}
+          <div className="bg-white bg-opacity-10 backdrop-filter backdrop-blur-lg p-4 rounded-lg shadow-lg col-span-3">
+            <h3 className="text-xl font-semibold text-white mb-2">GPS & Navigation</h3>
+            <div className="w-full h-60 bg-gray-700 rounded-lg">
+            <LoadScript googleMapsApiKey="AIzaSyBDRxzncdBrGr-pDUpqlAU1MIHOchZR4qg">
+      <GoogleMap
+        mapContainerStyle={mapContainerStyle}
+        center={rvLocation || center}
+        zoom={10}
+      >
+        {rvLocation && (
+          <Marker position={rvLocation} />
+        )}
+      </GoogleMap>
+    </LoadScript>
             </div>
           </div>
-        </div>
-        <p className="text-gray-300 mt-4">Estimated distance remaining: 300 km</p>
-      </div>
+        {/* Overall Performance Graph */}
 
-      {/* Tire Pressure Card */}
-      <div className="bg-gradient-to-r from-gray-700 via-gray-800 to-gray-900 p-6 rounded-lg shadow-lg transition-transform transform hover:scale-105">
-        <h2 className="text-2xl font-semibold mb-4 text-white">Tire Pressure</h2>
-        <ul className="text-gray-300">
-          <li>Front Left: <span className="font-semibold">32 psi</span></li>
-          <li>Front Right: <span className="font-semibold">32 psi</span></li>
-          <li>Rear Left: <span className="font-semibold">34 psi</span></li>
-          <li>Rear Right: <span className="font-semibold">34 psi</span></li>
-        </ul>
+
+        {/* Engine & Transmission Card */}
+        <div className="bg-white bg-opacity-10 backdrop-filter backdrop-blur-lg p-4 rounded-lg shadow-lg">
+          <h3 className="text-xl font-semibold text-white mb-2">Engine & Transmission</h3>
+          <p className="text-gray-300">Engine Temperature: {rvStatus?.engine_temperature}°F</p>
+          <div className="w-full bg-gray-800 rounded-full h-2.5 mb-4">
+            <div className="bg-green-600 h-2.5 rounded-full" style={{ width: `${(rvStatus?.engine_temperature / 300) * 100}%` }}></div>
+          </div>
+          <p className="text-gray-300">RPM: {rvStatus?.rpm}</p>
+          <div className="w-full bg-gray-800 rounded-full h-2.5 mb-4">
+            <div className="bg-green-600 h-2.5 rounded-full" style={{ width: `${(rvStatus?.rpm / 6000) * 100}%` }}></div>
+          </div>
+        </div>
+
+        {/* Electrical Systems Card */}
+        <div className="bg-white bg-opacity-10 backdrop-filter backdrop-blur-lg p-4 rounded-lg shadow-lg">
+  <h3 className="text-xl font-semibold text-white mb-2">Electrical Systems</h3>
+  <p className="text-gray-300">Battery Level: {rvStatus?.battery_level} V</p>
+  <div className="w-full bg-gray-800 rounded-full h-2.5 mb-4 overflow-hidden">
+    <div
+      className="bg-green-600 h-2.5 rounded-full"
+      style={{ width: `${Math.min((rvStatus?.battery_level / 12) * 100, 100)}%` }} // Ensure max width is 100%
+    ></div>
+  </div>
+  <p className="text-gray-300">Alternator Output: {rvStatus?.alternator_output} V</p>
+</div>
+
+
+        {/* Water Systems Card */}
+        <div className="bg-white bg-opacity-10 backdrop-filter backdrop-blur-lg p-4 rounded-lg shadow-lg">
+          <h3 className="text-xl font-semibold text-white mb-2">Water Systems</h3>
+          <p className="text-gray-300">Freshwater Tank Level: {rvStatus?.freshwater_tank_level} liters</p>
+          <div className="w-full bg-gray-800 rounded-full h-2.5 mb-4">
+            <div className="bg-green-600 h-2.5 rounded-full" style={{ width: `${(rvStatus?.freshwater_tank_level / 100) * 100}%` }}></div>
+          </div>
+          <p className="text-gray-300">Waste Tank Level: {rvStatus?.waste_tank_level} liters</p>
+          <div className="w-full bg-gray-800 rounded-full h-2.5 mb-4">
+            <div className="bg-green-600 h-2.5 rounded-full" style={{ width: `${(rvStatus?.waste_tank_level / 100) * 100}%` }}></div>
+          </div>
+        </div>
+
+        {/* HVAC Systems Card */}
+        <div className="bg-white bg-opacity-10 backdrop-filter backdrop-blur-lg p-4 rounded-lg shadow-lg">
+          <h3 className="text-xl font-semibold text-white mb-2">HVAC Systems</h3>
+          <p className="text-gray-300">Current Temperature: {rvStatus?.current_temperature}°C</p>
+          <p className="text-gray-300">HVAC Status: {rvStatus?.hvac_status}</p>
+          <p className="text-gray-300">Fan Speed: {rvStatus?.fan_speed}</p>
+        </div>
+
+        {/* Appliances Card */}
+        <div className="bg-white bg-opacity-10 backdrop-filter backdrop-blur-lg p-4 rounded-lg shadow-lg">
+          <h3 className="text-xl font-semibold text-white mb-2">Appliances</h3>
+          <p className="text-gray-300">Refrigerator Status: {rvStatus?.refrigerator_status}</p>
+          <p className="text-gray-300">Stove Status: {rvStatus?.stove_status}</p>
+          <p className="text-gray-300">Air Conditioning Status: {rvStatus?.air_conditioning_status}</p>
+        </div>
+
+        {/* Lighting Systems Card */}
+        <div className="bg-white bg-opacity-10 backdrop-filter backdrop-blur-lg p-4 rounded-lg shadow-lg">
+          <h3 className="text-xl font-semibold text-white mb-2">Lighting Systems</h3>
+          <p className="text-gray-300">Interior Lights Status: {rvStatus?.interior_lights_status}</p>
+          <p className="text-gray-300">Exterior Lights Status: {rvStatus?.exterior_lights_status}</p>
+        </div>
+        <div className="bg-white bg-opacity-10 backdrop-filter backdrop-blur-lg p-4 rounded-lg shadow-lg col-span-3">
+  <h3 className="text-xl font-semibold text-white mb-2">Electricity & Water Usage</h3>
+  <Line 
+    data={{
+      labels: data.map((item, index) => `Data ${index + 1}`),
+      datasets: [
+        {
+          label: 'Electricity Usage (kWh)',
+          data: usageData.electricity,
+          borderColor: 'rgba(75, 192, 192, 1)',
+          backgroundColor: 'rgba(75, 192, 192, 0.2)',
+          fill: true,
+        },
+        {
+          label: 'Water Usage (liters)',
+          data: usageData.water,
+          borderColor: 'rgba(153, 102, 255, 1)',
+          backgroundColor: 'rgba(153, 102, 255, 0.2)',
+          fill: true,
+        },
+      ],
+    }} 
+    options={{
+      responsive: true,
+      scales: {
+        y: {
+          beginAtZero: true,
+          min: 0,
+          max: 200, // Adjust for your data range
+          ticks: {
+            stepSize: 20,
+          },
+        },
+        x: {
+          ticks: {
+            autoSkip: true,
+            maxTicksLimit: 10,
+          },
+        },
+      },
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top',
+        },
+        tooltip: {
+          mode: 'index',
+          intersect: false,
+        },
+      },
+    }} 
+  />
+</div>
+
+
+        {/* Alerts Card
+        <div className="bg-white bg-opacity-10 backdrop-filter backdrop-blur-lg p-4 rounded-lg shadow-lg">
+          <h3 className="text-xl font-semibold text-white mb-2">Alerts</h3>
+          {rvStatus?.maintenance_alerts ? (
+            <p className="text-red-400">{rvStatus?.maintenance_alerts}</p>
+          ) : (
+            <p className="text-green-400">No Alerts</p>
+          )}
+        </div> */}
       </div>
     </div>
   );
