@@ -10,13 +10,15 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #1F2937;
+  background-color: #111827;
+  overflow: auto;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
-.sidebar{
-  height: 185vh;
+
+.dashboard{
+  overflow-y: scroll;
 }

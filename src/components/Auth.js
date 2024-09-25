@@ -74,7 +74,7 @@ const Auth = ({ setIsAuthenticated }) => {
             </div>
             <button
               type="submit"
-              className="w-full p-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all duration-300 shadow-lg"
+              className="w-full p-3 bg-blue-700 text-white rounded-lg hover:bg-blue-600 transition-all duration-300 shadow-lg"
             >
               Login
             </button>
