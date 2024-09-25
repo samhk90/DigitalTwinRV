@@ -11,7 +11,9 @@ const Logout = ({ setIsAuthenticated }) => {
     await supabase.auth.signOut();
     window.location.reload();
     setIsAuthenticated(false);
+    
     navigate('/') // Redirect to the Auth page
+    window.location.reload();
   };
 
   return (

@@ -20,9 +20,11 @@ const Auth = ({ setIsAuthenticated }) => {
     if (error) {
       alert('Login error: ' + error.message);
     } else {
-      setIsAuthenticated(true);
       window.location.reload();
+      setIsAuthenticated(true);
+      
       navigate('/'); // Redirect to the main dashboard
+      window.location.reload();
     }
   };
 

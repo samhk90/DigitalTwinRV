@@ -1,48 +1,44 @@
-import React, { useState, useEffect, startTransition } from 'react';
+import React from 'react';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, useGLTF } from '@react-three/drei';
+import { useGLTF, OrbitControls, Stage, Environment } from '@react-three/drei';
+import { EffectComposer, Bloom } from '@react-three/postprocessing';
 
-const RVModel = () => {
-  // Load the GLTF model
-  const { scene } = useGLTF(process.env.PUBLIC_URL + '/model.glb');
-  const [loading, setLoading] = useState(true);
-
-  // Load model with transition for smooth updates
-  useEffect(() => {
-    startTransition(() => {
-      if (scene) {
-        setLoading(false);
-      }
-    });
-  }, [scene]);
-
-  if (loading) {
-    return <div>Loading model...</div>;
-  }
-
-  return (
-    <Canvas style={{ height: '400px', width: '100%' }}>
-      <ambientLight intensity={0.6} />
-      <directionalLight intensity={1} position={[10, 10, 10]} />
-      
-      {/* Make model larger */}
-      <primitive object={scene} scale={[4, 4, 4]} position={[0, -1, 0]} /> 
-
-      {/* OrbitControls for zoom, pan, rotate */}
-      <OrbitControls
-        enableZoom={true}
-        zoomSpeed={0.7} // Smooth zoom effect
-        enablePan={true}
-        enableRotate={true}
-        minDistance={3} // Prevent over-zooming
-        maxDistance={20} // Restrict zoom out
-        maxPolarAngle={Math.PI / 2} // Restrict vertical rotation
-      />
-    </Canvas>
-  );
+const Model = ({ url }) => {
+  const { scene } = useGLTF(url);
+  return <primitive object={scene} />;
 };
 
-// Preload the GLTF model
-useGLTF.preload(process.env.PUBLIC_URL + '/model.glb');
+export default function RVModel() {
+  return (
+    <div className="bg-transparent h-fit w-full p-4 rounded-lg shadow-lg  col-span-3">
+      <h2 className="text-2xl font-semibold mb-4 text-white">3D Model</h2>
 
-export default RVModel;
+      {/* React Three Fiber Canvas for the 3D model */}
+      <Canvas
+        style={{ height: '350px', width: '100%' }}
+        shadows
+        camera={{ position: [0, 0, 5], fov: 50 }}
+      >
+        <Environment preset="studio" />
+        <Stage adjustCamera intensity={1}>
+          <Model url="/model/model.glb" />
+        </Stage>
+        <OrbitControls 
+          enableDamping={true} 
+          dampingFactor={0.1}
+          minPolarAngle={0}
+          maxPolarAngle={Math.PI}
+          enablePan={false}
+        />
+        <EffectComposer>
+          <Bloom 
+            luminanceThreshold={0} 
+            luminanceSmoothing={0.9} 
+            height={300} 
+            opacity={1} 
+          />
+        </EffectComposer>
+      </Canvas>
+    </div>
+  );
+}

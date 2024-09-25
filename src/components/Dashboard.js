@@ -14,7 +14,7 @@ import {
 import { Line } from 'react-chartjs-2';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
-
+import RVModel from './RVModel';
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 const supabase = createClient('https://wxundvfcpvhhggpifltc.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind4dW5kdmZjcHZoaGdncGlmbHRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjY5MDU3MDgsImV4cCI6MjA0MjQ4MTcwOH0.uFy5Vkgbh0vdPAwux4VlFdDs8VNqEiY5fUgWns_UOCM');
@@ -128,7 +128,7 @@ const mapContainerStyle = {
       <div className="p-8 grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-8 bg-gray-650 min-h-screen">
       <div className="col-span-3  flex justify-between space-x-8">
   {/* Engine Health Card */}
-  <div className="bg-transparent p-4 rounded-lg shadow-lg transition-transform transform hover:scale-105 col-span-3">
+  <div className="bg-transparent p-4 rounded-lg shadow-lg  col-span-3">
   <h2 className="text-2xl font-semibold mb-4 text-white">Engine Health</h2>
   
   {/* Adjusting the progress bar size */}
@@ -157,10 +157,9 @@ const mapContainerStyle = {
 
 
   {/* Side Card */}
-  <div className="bg-transparent h-fit w-full p-4 rounded-lg shadow-lg transition-transform transform hover:scale-105 col-span-3">
-    <h2 className="text-2xl font-semibold mb-4 text-white">Transmission Status</h2>
-    <div class="sketchfab-embed-wrapper"> <iframe title="Nw-vehicle-FINAL" frameborder="0" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking" xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share width="832" height="350" src="https://sketchfab.com/models/0c07dcbaef97433a8ad73bbe15bcd3b0/embed"> </iframe> </div>
-  </div>
+  <div className="bg-transparent h-fit w-full  rounded-lg shadow-lg  col-span-3">
+      <RVModel />
+</div>
 </div>
 
           {/* GPS and Navigation Card */}
