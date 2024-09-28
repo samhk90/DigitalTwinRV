@@ -6,7 +6,49 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 In the project directory, you can run:
 
-### `npm start`
+### `npm start`# RV Vehicle Dashboard and Predictive Maintenance System
+
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![React](https://img.shields.io/badge/React-v18.2.0-blue)
+![Supabase](https://img.shields.io/badge/Supabase-v1.2.0-green)
+
+The **RV Vehicle Dashboard and Predictive Maintenance System** provides real-time monitoring, system control, and predictive maintenance features for RV systems and appliances. This project integrates React for the web interface, Supabase for database management, and IoT sensors for future data integration.
+
+## Features
+
+- **Real-Time Monitoring**: Track key RV systems like engine health, HVAC, and appliances.
+- **Predictive Maintenance**: View predictions on potential system failures.
+- **Historical Data**: Access historical records and maintenance alerts.
+- **Remote Control**: Manage RV systems and appliances remotely via the web app.
+- **Mobile Alerts**: Receive system maintenance alerts on the mobile app.
+
+## Table of Contents
+
+- [Installation](#installation)
+- [Usage](#usage)
+- [Features](#features)
+- [Technologies](#technologies)
+- [Deployment](#deployment)
+- [Contributing](#contributing)
+- [License](#license)
+
+---
+
+## Installation
+
+### Prerequisites
+
+- Node.js (>= v16.0)
+- NPM (>= v7.0)
+- Git
+
+### Steps
+
+1. **Clone the Repository:**
+   ```bash
+   git clone https://github.com/your-repository/rv-dashboard.git
+   cd rv-dashboard
+
 
 Runs the app in the development mode.\
 Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
