@@ -28,6 +28,7 @@ const Sidebar = ({ setIsAuthenticated }) => {
               Predictive Maintenance
             </Link>
           </li>
+
           <li className="hover:bg-gray-700 transition duration-300">
             <Link to="/data-analysis" className="flex items-center px-4 py-3">
               <FileText className="mr-3 text-lg" />

@@ -22,3 +22,16 @@ code {
 .dashboard{
   overflow-y: scroll;
 }
+.tablerow{
+  color: white !important;
+}
+/* .simulation-container {
+  width: 80%;
+  margin: auto;
+  text-align: center;
+}
+
+.parameter-values p {
+  font-size: 1.2rem;
+  margin: 10px 0;
+} */
