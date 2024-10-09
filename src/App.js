@@ -8,7 +8,6 @@ import PredictiveMaintenance from './components/PredictiveMaintenance';
 import HistoricalDataReport from './components/HistoricalDataReport';
 import Profile from './components/Profile';
 import DataAnalysis from './components/DataAnalysis';
-import SimulationComponent from './components/SimulationComponent'
 const App = () => {
   // Initialize authentication state from localStorage
   const [isAuthenticated, setIsAuthenticated] = useState(
