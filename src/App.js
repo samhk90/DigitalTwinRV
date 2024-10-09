@@ -31,7 +31,7 @@ const App = () => {
             <Route path="/real-time-monitoring" element={isAuthenticated ? <RealTimeMonitoring /> : <Auth setIsAuthenticated={setIsAuthenticated} />} />
             <Route path="/predictive-maintenance" element={isAuthenticated ? <PredictiveMaintenance /> : <Auth setIsAuthenticated={setIsAuthenticated} />} />
             <Route path="/historicaldatareport" element={isAuthenticated ? <HistoricalDataReport /> : <Auth setIsAuthenticated={setIsAuthenticated} />} />
-            <Route path="/simulationcomponent " element={isAuthenticated ? <SimulationComponent /> : <Auth setIsAuthenticated={setIsAuthenticated} />} />
+            
             <Route path="/data-analysis" element={isAuthenticated ? <DataAnalysis /> : <Auth setIsAuthenticated={setIsAuthenticated} />} />
             <Route path="/profile" element={isAuthenticated ? <Profile /> : <Auth setIsAuthenticated={setIsAuthenticated} />} />
             <Route path="/auth" element={<Auth setIsAuthenticated={setIsAuthenticated} />} />
