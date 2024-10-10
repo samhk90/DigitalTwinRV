@@ -1,10 +1,10 @@
 import { Link } from 'react-router-dom';
-import { Home, Monitor, Calendar, FileText, User } from 'lucide-react';
+import { Home, Monitor, Calendar, FileText, User,Play  } from 'lucide-react';
 import Logout from './Logout'; // Import the Logout component
 
 const Sidebar = ({ setIsAuthenticated }) => {
   return (
-    <aside className="sidebar w-70 h-fit bg-gray-900 text-white flex flex-col">
+    <aside className="sidebar w-1/6 h-fit bg-gray-900 text-white flex flex-col">
       <div className="p-4 mb-6">
         <h1 className="text-2xl font-bold">RVision</h1>
       </div>
@@ -23,9 +23,9 @@ const Sidebar = ({ setIsAuthenticated }) => {
             </Link>
           </li> */}
           <li className="hover:bg-gray-700 transition duration-300">
-            <Link to="/predictive-maintenance" className="flex items-center px-4 py-3">
-              <Calendar className="mr-3 text-lg" />
-              Predictive Maintenance
+            <Link to="/rvsimulation" className="flex items-center px-4 py-3">
+              <Play className="mr-3 text-lg" />
+              Simulation
             </Link>
           </li>
 
