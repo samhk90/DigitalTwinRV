@@ -585,12 +585,7 @@ const RVSimulation = () => {
         Run Simulation
       </button>
 
-      {loading && (
-        <div style={{ textAlign: 'center', marginTop: '20px' }}>
-          <p>Loading...</p>
-          <div className="loader"></div>
-        </div>
-      )}
+
     </div>
     {/* simulation result card */}
     {simulationResults ? (
@@ -620,26 +615,36 @@ const RVSimulation = () => {
         </div>
         <h3 className='text-black font-semibold mt-5'>Test Results</h3>
         <p>Passed {simulationResults.testsPassed} out of {simulationResults.totalTests} tests</p>
-        <table className='w-full text-center ' border="1" cellPadding="10">
-          <thead>
-            <tr>
-              <th>Test Name</th>
-              <th>Result</th>
-            </tr>
-          </thead>
-          <tbody>
-            {simulationResults.testResults.map((test, index) => (
-              <tr key={index}>
-                <td>{test.name}</td>
-                <td>{test.result}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="flex justify-center">
+        <table className='w-1/2  text-start border border-gray-300' cellPadding="10">
+  <thead>
+    <tr className='border-b border-gray-300'>
+      <th className='border border-gray-300 px-1 py-2'>Test Name</th>
+      <th className='border border-gray-300 px-4 py-2'>Result</th>
+    </tr>
+  </thead>
+  <tbody>
+    {simulationResults.testResults.map((test, index) => (
+      <tr key={index} className='border-b border-gray-300'>
+        <td className='border border-gray-300 px-2 py-2 text-center'>{test.name}</td>
+        <td className='border border-gray-300 px-2 py-2 text-center'>{test.result}</td>
+      </tr>
+    ))}
+  </tbody>
+</table>
+
+        </div>
       </div>
     ):(
       <div>No simulation results available.</div>
+      
     )}
+          {loading && (
+        <div style={{ textAlign: 'center', marginTop: '20px' }}>
+          <p>Loading...</p>
+          <div className="loader"></div>
+        </div>
+      )}
   </div>
     </div>
   );
