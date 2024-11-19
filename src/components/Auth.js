@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react'; // Import icons from lucide-react
 
 // Initialize Supabase client
-const supabase = createClient('https://wxundvfcpvhhggpifltc.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind4dW5kdmZjcHZoaGdncGlmbHRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjY5MDU3MDgsImV4cCI6MjA0MjQ4MTcwOH0.uFy5Vkgbh0vdPAwux4VlFdDs8VNqEiY5fUgWns_UOCM');
+const supabase = createClient('https://wxundvfcpvhhggpifltc.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkcWVjeGlzY3FjeXhoZ3B2cGZpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzIwMTQyNTksImV4cCI6MjA0NzU5MDI1OX0.jfwVI2qu6oBRbCwvN6OnaIp3JvubPAi14YRf0RQFugI');
 
 const Auth = ({ setIsAuthenticated }) => {
   const [loginData, setLoginData] = useState({ username: '', password: '' });
